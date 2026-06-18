@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心情便签</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            transform: translateY(-10px);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(0);
+        }
+
+        h1 {
+            color: #5d4037;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .input-area {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 16px;
+            border: 2px solid #f0e6d6;
+            border-radius: 16px;
+            font-size: 16px;
+            resize: none;
+            transition: all 0.3s ease;
+            background: #fffaf5;
+            color: #5d4037;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #ffb74d;
+            box-shadow: 0 0 0 3px rgba(255, 183, 77, 0.2);
+        }
+
+        textarea::placeholder {
+            color: #bcaaa4;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ffb74d 0%, #ff8a65 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 138, 101, 0.3);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(255, 138, 101, 0.4);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
+        .mood-list {
+            margin-top: 30px;
+        }
+
+        .mood-list h2 {
+            color: #8d6e63;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #f0e6d6;
+        }
+
+        .mood-item {
+            background: #fffaf5;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #ffb74d;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .mood-text {
+            color: #5d4037;
+            font-size: 16px;
+            line-height: 1.5;
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .btn-delete {
+            background: #ffcdd2;
+            color: #e53935;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-delete:hover {
+            background: #e53935;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #bcaaa4;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .mood-count {
+            text-align: center;
+            color: #8d6e63;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .image-upload-area {
+            margin-top: 16px;
+            border: 2px dashed #f0e6d6;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fffaf5;
+        }
+
+        .image-upload-area:hover {
+            border-color: #ffb74d;
+            background: #fff5eb;
+        }
+
+        .image-upload-area.has-image {
+            padding: 8px;
+        }
+
+        .image-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .image-upload-area .upload-text {
+            color: #bcaaa4;
+            font-size: 14px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .mood-image {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .mood-image:hover {
+            transform: scale(1.02);
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #e53935;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-section {
+            margin-bottom: 20px;
+        }
+
+        .date-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #fff5eb 0%, #ffe0cc 100%);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+
+        .date-header:hover {
+            background: linear-gradient(135deg, #ffe0cc 0%, #ffcdb3 100%);
+        }
+
+        .date-header.today {
+            background: linear-gradient(135deg, #ffb74d 0%, #ff8a65 100%);
+        }
+
+        .date-header.today .date-label {
+            color: white;
+        }
+
+        .date-header.today .date-count {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .date-header.today .toggle-icon {
+            color: white;
+        }
+
+        .date-label {
+            color: #5d4037;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .date-count {
+            color: #8d6e63;
+            font-size: 14px;
+        }
+
+        .toggle-icon {
+            color: #8d6e63;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .date-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .date-content.collapsed {
+            max-height: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ 心情便签 ✨</h1>
+        
+        <div class="input-area">
+            <textarea id="moodInput" placeholder="今天的心情如何？写下你此刻的感受..."></textarea>
+            <div class="image-upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
+                <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect(event)">
+                <div class="upload-text" id="uploadText">📷 点击上传图片（可选）</div>
+            </div>
+            <button class="btn-add" onclick="addMood()">记录心情</button>
+        </div>
+
+        <div class="mood-list">
+            <h2>📝 我的心情记录</h2>
+            <div id="moodList"></div>
+            <div class="mood-count" id="moodCount"></div>
+        </div>
+    </div>
+
+    <div class="image-modal" id="imageModal" onclick="closeModal()">
+        <img id="modalImage" src="" alt="图片预览">
+    </div>
+
+    <script>
+        let moods = JSON.parse(localStorage.getItem('moods')) || [];
+        let selectedImage = null;
+        let collapsedDates = JSON.parse(localStorage.getItem('collapsedDates')) || [];
+
+        function saveMoods() {
+            localStorage.setItem('moods', JSON.stringify(moods));
+        }
+
+        function saveCollapsedDates() {
+            localStorage.setItem('collapsedDates', JSON.stringify(collapsedDates));
+        }
+
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImage = e.target.result;
+                    const uploadArea = document.getElementById('uploadArea');
+                    const uploadText = document.getElementById('uploadText');
+                    uploadArea.classList.add('has-image');
+                    uploadText.innerHTML = `<img src="${selectedImage}" class="image-preview" alt="预览">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addMood() {
+            const input = document.getElementById('moodInput');
+            const text = input.value.trim();
+            
+            if (text) {
+                const mood = {
+                    id: Date.now(),
+                    text: text,
+                    time: new Date().toLocaleString('zh-CN'),
+                    image: selectedImage
+                };
+                
+                moods.unshift(mood);
+                saveMoods();
+                renderMoods();
+                input.value = '';
+                selectedImage = null;
+                const uploadArea = document.getElementById('uploadArea');
+                const uploadText = document.getElementById('uploadText');
+                uploadArea.classList.remove('has-image');
+                uploadText.innerHTML = '📷 点击上传图片（可选）';
+                document.getElementById('imageInput').value = '';
+                input.focus();
+            }
+        }
+
+        function deleteMood(id) {
+            moods = moods.filter(mood => mood.id !== id);
+            saveMoods();
+            renderMoods();
+        }
+
+        function openImage(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = src;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('active');
+        }
+
+        function getDateKey(timestamp) {
+            const date = new Date(timestamp);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function formatDateHeader(dateKey) {
+            const today = new Date();
+            const todayKey = getDateKey(today.getTime());
+            
+            if (dateKey === todayKey) {
+                return '今天';
+            }
+            
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayKey = getDateKey(yesterday.getTime());
+            
+            if (dateKey === yesterdayKey) {
+                return '昨天';
+            }
+            
+            const date = new Date(dateKey);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const weekday = weekdays[date.getDay()];
+            
+            return `${month}月${day}日 ${weekday}`;
+        }
+
+        function toggleDateSection(dateKey) {
+            const content = document.getElementById(`content-${dateKey}`);
+            const icon = document.getElementById(`icon-${dateKey}`);
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.classList.remove('collapsed');
+                collapsedDates = collapsedDates.filter(d => d !== dateKey);
+            } else {
+                content.classList.add('collapsed');
+                icon.classList.add('collapsed');
+                if (!collapsedDates.includes(dateKey)) {
+                    collapsedDates.push(dateKey);
+                }
+            }
+            saveCollapsedDates();
+        }
+
+        function renderMoods() {
+            const list = document.getElementById('moodList');
+            const count = document.getElementById('moodCount');
+            
+            if (moods.length === 0) {
+                list.innerHTML = '<div class="empty-state">还没有心情记录，写下你的第一条心情吧～</div>';
+                count.textContent = '';
+                return;
+            }
+
+            const groupedMoods = {};
+            moods.forEach(mood => {
+                const dateKey = getDateKey(mood.id);
+                if (!groupedMoods[dateKey]) {
+                    groupedMoods[dateKey] = [];
+                }
+                groupedMoods[dateKey].push(mood);
+            });
+
+            const todayKey = getDateKey(new Date().getTime());
+            const sortedDates = Object.keys(groupedMoods).sort((a, b) => b.localeCompare(a));
+
+            let html = '';
+            sortedDates.forEach(dateKey => {
+                const dayMoods = groupedMoods[dateKey];
+                const isToday = dateKey === todayKey;
+                const isCollapsed = collapsedDates.includes(dateKey);
+                
+                html += `
+                    <div class="date-section">
+                        <div class="date-header ${isToday ? 'today' : ''}" onclick="toggleDateSection('${dateKey}')">
+                            <span class="date-label">${formatDateHeader(dateKey)}</span>
+                            <span class="date-count">${dayMoods.length} 条记录</span>
+                            <span class="toggle-icon ${isCollapsed ? 'collapsed' : ''}" id="icon-${dateKey}">▼</span>
+                        </div>
+                        <div class="date-content ${isCollapsed ? 'collapsed' : ''}" id="content-${dateKey}" style="${isCollapsed ? '' : 'max-height: 2000px;'}">
+                            ${dayMoods.map(mood => `
+                                <div class="mood-item" style="flex-direction: column; align-items: flex-start;">
+                                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: flex-start;">
+                                        <div class="mood-text">${mood.text}<br><small style="color: #bcaaa4; font-size: 12px;">${mood.time}</small></div>
+                                        <button class="btn-delete" onclick="deleteMood(${mood.id})">删除</button>
+                                    </div>
+                                    ${mood.image ? `<img src="${mood.image}" class="mood-image" onclick="openImage('${mood.image}')" alt="心情图片">` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+            count.textContent = `共 ${moods.length} 条心情记录`;
+        }
+
+        document.getElementById('moodInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                addMood();
+            }
+        });
+
+        renderMoods();
+    </script>
+</body>
+</html>
